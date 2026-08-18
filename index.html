@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BabyGPT — dicas sobre a primeira infância (0 a 3 anos)</title>
-  <meta name="description" content="Dúvidas sobre seu bebê? Pergunte sobre sono, choro, birras, fala, comida e telas — o BabyGPT responde na hora. Primeira infância, 0 a 3 anos." />
-  <meta property="og:title" content="BabyGPT — pergunte sobre seu bebê" />
-  <meta property="og:description" content="Dúvidas sobre bebês e crianças de 0 a 3 anos? Escreva sua pergunta e o BabyGPT responde na hora. Gratuito." />
+  <title>Pergunta de Mãe — um lugar para tirar suas dúvidas sobre o bebê</title>
+  <meta name="description" content="Pergunte sobre sono, choro, birra, comida ou telas e receba uma resposta na hora — sem julgamento e sem cobrança. Para mães de bebês de 0 a 3 anos." />
+  <meta property="og:title" content="Pergunta de Mãe — pergunte sem medo de julgamento" />
+  <meta property="og:description" content="Escreva sua dúvida sobre o bebê e receba uma resposta acolhedora na hora. Sem julgamento, sem cobrança. Gratuito." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://babygpt-one.vercel.app/" />
   <meta property="og:locale" content="pt_BR" />
@@ -53,7 +53,7 @@
       letter-spacing: -0.02em;
       text-align: center;
     }
-    .logo .gpt { color: var(--azul); }
+    .logo .destaque { color: var(--azul); }
     .tagline {
       text-align: center;
       color: var(--suave);
@@ -253,77 +253,77 @@
 
   <!-- 1ª tela: a pergunta -->
   <div class="hero wrap">
-    <h1 class="logo">Baby<span class="gpt">GPT</span> 👶</h1>
-    <p class="tagline">Tire suas dúvidas sobre bebês e crianças de 0 a 3 anos</p>
+    <h1 class="logo">Pergunta <span class="destaque">de Mãe</span></h1>
+    <p class="tagline">Pergunte o que quiser sobre seu bebê. Sem julgamento, sem cobrança.</p>
 
     <div class="caixa">
       <label for="pergunta" class="sr-only" style="position:absolute;left:-9999px;">Sua pergunta</label>
-      <textarea id="pergunta" maxlength="500" placeholder="Ex.: Meu bebê de 1 ano acorda várias vezes à noite. O que eu faço?" enterkeyhint="send"></textarea>
+      <textarea id="pergunta" maxlength="500" placeholder="Ex.: Meu bebê acorda a noite toda e eu não aguento mais. É normal?" enterkeyhint="send"></textarea>
       <button class="btn" id="enviar" type="button">Perguntar</button>
     </div>
 
     <div class="resposta" id="resposta" aria-live="polite"></div>
 
     <div class="chips" id="chips">
-      <button class="chip" type="button">Como lidar com birras?</button>
-      <button class="chip" type="button">Quando tirar a fralda?</button>
-      <button class="chip" type="button">Meu bebê não quer comer</button>
+      <button class="chip" type="button">Não durmo há semanas</button>
+      <button class="chip" type="button">Ele chora e eu não sei o que fazer</button>
+      <button class="chip" type="button">Será que estou fazendo certo?</button>
     </div>
 
     <p class="nota">Respostas geradas por inteligência artificial, com caráter educativo — não substituem o pediatra. Em emergência, procure atendimento médico imediatamente.</p>
 
-    <p class="seta"><a href="#dicas">Dicas rápidas para o dia a dia<span class="baixo">↓</span></a></p>
+    <p class="seta"><a href="#dicas">Para os dias difíceis<span class="baixo">↓</span></a></p>
   </div>
 
-  <!-- Dicas -->
+  <!-- Para os dias difíceis -->
   <section id="dicas" class="wrap">
-    <h2>Dicas rápidas: 0 a 3 anos</h2>
-    <p class="sub">O essencial que ajuda na maior parte dos dias. Quer ir além? Pergunte ao BabyGPT.</p>
+    <h2>Para os dias difíceis</h2>
+    <p class="sub">Coisas que costumam acalmar — e o que você já está fazendo certo sem perceber.</p>
     <div class="dicas">
       <article class="dica">
-        <h3>😴 Sono começa com rotina</h3>
-        <p>Bebês dormem melhor quando o fim do dia é previsível: banho, luz baixa, voz calma, sempre na mesma ordem. O corpo aprende a sequência e entende que é hora de desacelerar.</p>
-        <button type="button" data-p="Como montar uma rotina de sono para meu bebê?">Perguntar sobre sono →</button>
+        <h3>😴 Noite picada não é culpa sua</h3>
+        <p>Acordar várias vezes é o normal do primeiro ano, não sinal de que algo deu errado. O que costuma ajudar é o fim de dia previsível — banho, luz baixa, voz calma. E, nos dias em que nada funciona, dormir quando dá também é cuidar.</p>
+        <button type="button" data-p="Meu bebê acorda várias vezes por noite e eu estou exausta. O que posso fazer?">Perguntar sobre sono →</button>
       </article>
       <article class="dica">
-        <h3>🍼 Choro é comunicação</h3>
-        <p>Bebê não chora para manipular — chora porque é a única língua que tem. Atender o choro não "estraga": ensina que o mundo responde, e é daí que nasce a segurança.</p>
-        <button type="button" data-p="Por que meu bebê chora tanto e como acolher sem me desesperar?">Perguntar sobre choro →</button>
+        <h3>🍼 Atender o choro não estraga nada</h3>
+        <p>Bebê não chora para manipular: é a única língua que ele tem. Você não vai "acostumar mal" por pegar no colo — é o contrário. Cada vez que você responde, ele aprende que o mundo é um lugar seguro.</p>
+        <button type="button" data-p="Meu bebê chora muito e eu fico sem saber o que fazer. Como lidar?">Perguntar sobre choro →</button>
       </article>
       <article class="dica">
-        <h3>🌋 Birra é cérebro em obras</h3>
-        <p>Entre 1 e 3 anos, a emoção é gigante e o autocontrole ainda não existe. Na birra: fique por perto, nomeie o sentimento ("você ficou bravo") e mantenha o limite com calma.</p>
-        <button type="button" data-p="Como lidar com as birras do meu filho de 2 anos?">Perguntar sobre birras →</button>
+        <h3>🌋 Birra não é falta de limite seu</h3>
+        <p>Entre 1 e 3 anos a emoção é enorme e o freio ainda não existe — nem a melhor mãe do mundo evita birra. Ficar por perto e dar nome ao que ele sente já é quase tudo. O resto passa com a idade.</p>
+        <button type="button" data-p="Como lidar com as birras do meu filho sem perder a paciência?">Perguntar sobre birra →</button>
       </article>
       <article class="dica">
-        <h3>🗣️ Conversa constrói a fala</h3>
-        <p>Narre o dia, responda aos balbucios como se fossem frases, dê tempo para a criança "responder". É essa troca — e não vídeos de estímulo — que constrói a linguagem.</p>
-        <button type="button" data-p="Como estimular a fala do meu bebê no dia a dia?">Perguntar sobre fala →</button>
+        <h3>🗣️ Você já faz o que mais importa</h3>
+        <p>Falar com o bebê, esperar ele responder do jeito dele e responder de volta: é essa ida e volta que constrói a fala. Não precisa de aplicativo, vídeo nem brinquedo caro. Precisa de você conversando durante o dia comum.</p>
+        <button type="button" data-p="Como ajudar meu filho a começar a falar?">Perguntar sobre fala →</button>
       </article>
       <article class="dica">
-        <h3>📵 Telas: quanto menos, melhor</h3>
-        <p>Antes dos 2 anos, o cérebro aprende com o mundo em três dimensões: gente, chão, objetos de verdade. A tela hipnotiza, mas não constrói — troque por colo e chão livre.</p>
-        <button type="button" data-p="Telas fazem mal para bebês? Como reduzir aqui em casa?">Perguntar sobre telas →</button>
+        <h3>🧗 O chão vale mais que qualquer brinquedo</h3>
+        <p>Um espaço seguro no chão, com liberdade para rolar, engatinhar e escalar, faz mais pelo corpo e pelo cérebro do que qualquer aparato. Menos tempo preso em cadeirinha, mais chão — é simples assim.</p>
+        <button type="button" data-p="Como preparar um espaço seguro para meu bebê ficar livre no chão?">Perguntar sobre movimento →</button>
       </article>
       <article class="dica">
-        <h3>🥦 Comer é aprendizado</h3>
-        <p>Criança pequena precisa reencontrar o mesmo alimento muitas vezes antes de aceitar. Coma junto, ofereça sem forçar e deixe ela pegar com a mão — sempre sentada e com um adulto por perto. Bagunça faz parte.</p>
-        <button type="button" data-p="Meu filho recusa comida. Como tornar as refeições mais leves?">Perguntar sobre alimentação →</button>
+        <h3>📵 Um desenho não põe tudo a perder</h3>
+        <p>Quanto menos tela nos primeiros anos, melhor — isso é verdade. Mas se num dia impossível você precisou de vinte minutos de desenho para tomar um banho, isso não desfaz o resto. Volta amanhã, sem culpa.</p>
+        <button type="button" data-p="Telas fazem mal para bebês? Como reduzir sem virar uma guerra em casa?">Perguntar sobre telas →</button>
       </article>
       <article class="dica">
-        <h3>🧗 Chão livre, corpo forte</h3>
-        <p>O chão é o melhor brinquedo que existe: rolar, engatinhar, escalar almofadas. Quanto menos tempo preso em cadeirinhas e telas, mais o corpo — e o cérebro — se desenvolvem.</p>
-        <button type="button" data-p="Como montar um espaço seguro para meu bebê se movimentar livre em casa?">Perguntar sobre movimento →</button>
+        <h3>🥦 Recusar comida não é rejeição a você</h3>
+        <p>Criança pequena precisa reencontrar o mesmo alimento muitas vezes até aceitar — e isso não tem nada a ver com o seu esforço. Coma junto, ofereça sem insistir e deixe ela pegar com a mão, sentada e com você por perto.</p>
+        <button type="button" data-p="Meu filho recusa comida. Como deixar as refeições mais leves?">Perguntar sobre comida →</button>
       </article>
       <article class="dica">
-        <h3>🤲 Deixe tentar</h3>
-        <p>Comer sozinho, subir o degrau, guardar o brinquedo: leva o triplo do tempo e sai imperfeito — e é assim que se aprende. Ajude só no necessário, e celebre a tentativa.</p>
-        <button type="button" data-p="Como incentivar a autonomia de uma criança de 2 anos?">Perguntar sobre autonomia →</button>
+        <h3>🤲 Deixar tentar é mais devagar — e tudo bem</h3>
+        <p>Comer sozinho, calçar o sapato, subir o degrau: leva o triplo do tempo e sai torto. É exatamente assim que se aprende. Nos dias corridos, faça por ele sem peso na consciência; nos dias calmos, deixe tentar.</p>
+        <button type="button" data-p="Como incentivar a autonomia do meu filho pequeno no dia a dia?">Perguntar sobre autonomia →</button>
       </article>
       <article class="dica">
-        <h3>📚 Livro desde o colo</h3>
-        <p>Ler para bebê vale desde sempre — pela voz, pelo colo, pelas imagens. E repetir o mesmo livro vinte vezes não é "de novo isso, não": repetição é como criança aprende.</p>
-        <button type="button" data-p="Como criar o hábito de leitura com um bebê?">Perguntar sobre leitura →</button>
+        <h3>💛 Você também precisa de colo</h3>
+        <p>Cansaço, choro sem motivo, vontade de sumir por uma hora: isso acontece com muita mãe e não faz de você uma mãe pior. Aceitar ajuda não é fraqueza. E se o peso não passa, procurar apoio é cuidar do seu bebê também.</p>
+        <button type="button" data-p="Estou exausta e me sentindo culpada o tempo todo. O que faço?">Perguntar sobre isso →</button>
       </article>
     </div>
   </section>
@@ -331,23 +331,23 @@
   <!-- Sobre -->
   <section class="wrap">
     <div class="sobre">
-      <p><strong>O que é o BabyGPT?</strong></p>
-      <p>Um assistente gratuito para quem cuida de bebês e crianças pequenas. Você pergunta em português simples — sobre sono, choro, birras, fralda, comida, telas, fala — e ele responde na hora, sem julgamento, com orientações práticas para o dia a dia.</p>
+      <p><strong>O que é o Pergunta de Mãe?</strong></p>
+      <p>Um lugar gratuito para tirar as dúvidas que aparecem no meio da noite — sobre sono, choro, birra, fralda, comida, telas, fala. Você escreve do seu jeito e recebe uma resposta na hora: acolhedora, prática e sem lição de moral. Ninguém aqui vai dizer que você está fazendo errado.</p>
       <p>As respostas são geradas por inteligência artificial e têm caráter educativo: podem conter imprecisões e <strong>não substituem a orientação do pediatra</strong> nem de outros profissionais que acompanham a sua criança. Em situação de emergência, procure atendimento médico imediatamente.</p>
     </div>
   </section>
 
   <footer class="wrap">
     <p><a class="link-sobre" href="/sobre.html">Sobre nós</a></p>
-    <a class="realizacao" href="https://www.freeschool.com.br?utm_source=babygpt&amp;utm_medium=referral" target="_blank" rel="noopener">
+    <a class="realizacao" href="https://www.freeschool.com.br?utm_source=perguntademae&amp;utm_medium=referral" target="_blank" rel="noopener">
       <span class="quadros"><span class="q-r"></span><span class="q-a"></span><span class="q-b"></span></span>
       Uma realização da Free School
     </a>
-    <div class="mi">BabyGPT · dicas sobre a primeira infância · 0 a 3 anos</div>
+    <div class="mi">Pergunta de Mãe · para mães de bebês de 0 a 3 anos</div>
   </footer>
 
   <script>
-    const API = 'https://rmpnqrvsmxhnrwlgqmdp.supabase.co/functions/v1/babygpt';
+    const API = 'https://rmpnqrvsmxhnrwlgqmdp.supabase.co/functions/v1/perguntademae';
     const caixa = document.getElementById('pergunta');
     const botao = document.getElementById('enviar');
     const areaResposta = document.getElementById('resposta');
@@ -390,7 +390,7 @@
       botao.disabled = true;
       botao.textContent = 'Pensando…';
       areaResposta.className = 'resposta visivel';
-      areaResposta.innerHTML = '<p class="pensando">O BabyGPT está pensando na sua pergunta…</p>';
+      areaResposta.innerHTML = '<p class="pensando">Pensando na sua pergunta…</p>';
       areaResposta.scrollIntoView({ behavior: 'smooth', block: 'start' });
       ultimaResposta = '';
       try {
@@ -425,7 +425,7 @@
     const BOTAO_COMPARTILHAR = '<button class="compartilhar" id="compartilhar" type="button">Compartilhar resposta</button>';
     let ultimaResposta = '';
     async function compartilhar() {
-      const texto = ultimaResposta + '\n\n— BabyGPT, dicas sobre a primeira infância\n' + location.origin;
+      const texto = ultimaResposta + '\n\n— Pergunta de Mãe\n' + location.origin;
       try {
         if (navigator.share) { await navigator.share({ text: texto }); return; }
         await navigator.clipboard.writeText(texto);

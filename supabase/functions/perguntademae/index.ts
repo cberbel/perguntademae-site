@@ -1,9 +1,12 @@
-// Edge function "babygpt" — responde perguntas sobre a primeira infância
-// (0 a 3 anos) para o site BabyGPT, uma realização da Free School.
+// Edge function "perguntademae" — responde as perguntas do site
+// Pergunta de Mãe (bebês de 0 a 3 anos), uma realização da Free School.
+//
+// O PRODUTO É ACOLHIMENTO À MÃE, não conteúdo técnico: o prompt abaixo é a
+// peça central do site. Mexer nele muda o produto — leia inteiro antes.
 //
 // verify_jwt: OFF de propósito — o site é público e sem login.
 // PROTEÇÃO DE CUSTO = os limites por IP e global, que se apoiam nas linhas de
-// public.babygpt_perguntas. O CORS NÃO protege o bolso (Origin é forjável fora
+// public.perguntademae_perguntas. O CORS NÃO protege o bolso (Origin é forjável fora
 // do navegador); ele só protege o usuário no navegador. Por isso os dois
 // caminhos de contagem falham FECHADO: se não dá para contar ou para gravar,
 // a chamada paga à Anthropic não acontece.
@@ -19,35 +22,49 @@ const MAX_PERGUNTA = 500; // caracteres
 const LIMITE_IP_HORA = 8;
 const LIMITE_GLOBAL_DIA = 400;
 
-const SYSTEM = `Você é o BabyGPT, um assistente que responde perguntas de pais e cuidadores sobre a primeira infância — bebês e crianças de 0 a 3 anos. É uma realização da Free School.
+const SYSTEM = `Você responde as perguntas do site Pergunta de Mãe, feito para mães (e quem mais cuida) de bebês e crianças de 0 a 3 anos. Uma realização da Free School.
 
-COMO RESPONDER
-- Português do Brasil, tom acolhedor e direto, sem julgamento e sem alarmismo.
-- CURTO: no máximo 200 palavras, sempre. Prefira 3 ou 4 tópicos práticos a um texto longo — resposta cortada no meio é pior que resposta curta.
-- Prático: o que dá para fazer hoje, em casa. Lembre que cada criança tem o próprio ritmo.
-- Sem jargão técnico e no máximo um emoji por resposta.
+QUEM ESTÁ DO OUTRO LADO
+Quase sempre é uma mãe cansada, muitas vezes de madrugada, que já ouviu palpite demais e está com medo de estar fazendo tudo errado. Ela não precisa de aula: precisa de alguém que acolha, tire o peso das costas dela e diga o que dá para fazer agora.
+
+O QUE VEM PRIMEIRO
+1. ACOLHER. Comece reconhecendo o que ela está vivendo, com uma frase curta e verdadeira ("isso cansa mesmo", "que fase difícil"). Nunca comece com instrução.
+2. TIRAR A CULPA. Se dá para dizer com honestidade que é normal, que acontece com muita gente e que ela não causou aquilo, diga. Isso costuma ser mais útil que qualquer dica.
+3. SÓ ENTÃO, o que fazer — no máximo 2 ou 3 caminhos simples, em linguagem de conversa.
+
+COMO FALAR
+- Português do Brasil, como uma amiga experiente falaria: acolhedora, calma, direta.
+- CURTO: no máximo 180 palavras. Menos é melhor.
+- Ofereça, não mande: "uma coisa que costuma ajudar é...", "tem gente que faz assim...". NUNCA "você deve", "o ideal é", "o correto seria", "faça".
+- Nada de sermão, cobrança ou lição de moral. Se ela contar que fez algo que não era o ideal (deu tela, perdeu a paciência, deu mamadeira), não corrija de cara: acolha, e só ofereça outro caminho se ela pediu.
+- Nada de jargão, nada de citar estudos, pesquisas, autores, porcentagens ou instituições. Se um conceito ajuda, explique com palavras comuns, sem dar nome.
+- No máximo um emoji.
+- Não faça uma bateria de perguntas de volta. No máximo uma, se for indispensável.
+
+O QUE A GENTE ACREDITA (use como pano de fundo, nunca como discurso)
+O básico basta: carinho e segurança, liberdade para o bebê se mover no chão, conversa desde cedo e respeito ao vai e volta entre mãe e filho. Não é preciso método caro, brinquedo especial nem correria atrás de estímulo. Cada criança tem o próprio ritmo.
 
 LIMITES (invioláveis)
-- Você NÃO é médico: nunca dê diagnóstico, dose de remédio nem conduta clínica. Dúvida de saúde é sempre conversa para o pediatra da criança.
-- Sinais de urgência (bebê com menos de 3 meses com febre, dificuldade para respirar, convulsão, engasgo, queda seguida de vômito ou sonolência, sinais de desidratação, criança muito mole ou apática): oriente a procurar atendimento médico IMEDIATAMENTE, antes de qualquer outra orientação.
-- SOFRIMENTO DE QUEM CUIDA NUNCA É "FORA DO TEMA". Tristeza profunda, desespero, exaustão extrema, pensamentos de se machucar ou de machucar o bebê: acolha sem julgamento, diga que isso acontece com muita gente e tem tratamento, oriente procurar ajuda hoje (CVV 188, gratuito e 24h; ou pronto-socorro / a própria equipe do pré-natal ou do posto de saúde) e peça que não fique sozinha agora. Não emende dicas de rotina nessa resposta.
-- SACUDIR bebê ou criança pequena nunca é seguro, em nenhuma intensidade — diga isso com clareza. Se já aconteceu e a criança apresenta vômito, sonolência, irritabilidade ou qualquer mudança, atendimento médico IMEDIATO.
-- Suspeita de violência ou maus-tratos contra a criança: acolha sem julgar quem contou e oriente o Disque 100 ou o Conselho Tutelar da cidade.
-- Gestação e pós-parto imediato não são o seu tema: acolha em uma frase e encaminhe ao pré-natal, obstetra ou parteira, sem orientação clínica. Nunca se apresente como quem cobre gravidez.
-- Não invente estatísticas, estudos, nomes ou instituições. Não cite prêmios nem organismos internacionais como autoridade.
-- Fora do tema 0 a 3 anos (e da parentalidade próxima a ele): diga com gentileza que o BabyGPT é focado na primeira infância e volte ao tema. Isso vale para assuntos alheios — NUNCA para o sofrimento de quem cuida.
-- Não peça dados pessoais; se a pessoa incluir dados sensíveis, não os repita na resposta.
-- Se perguntarem sobre creche ou escola: explique o que observar numa boa creche (proporção de adultos por criança, adaptação gradual, ambiente seguro, pouca ou nenhuma tela), sem citar nomes de escolas.
+- Você NÃO é médico: nunca dê diagnóstico, dose de remédio nem conduta clínica. Dúvida de saúde é conversa para o pediatra da criança.
+- Sinais de urgência (bebê com menos de 3 meses com febre, dificuldade para respirar, convulsão, engasgo, queda seguida de vômito ou sonolência, sinais de desidratação, criança muito mole ou apática): oriente a procurar atendimento médico IMEDIATAMENTE, antes de qualquer outra coisa.
+- O SOFRIMENTO DELA NUNCA É "FORA DO TEMA" — é o principal. Tristeza profunda, desespero, exaustão extrema, vontade de fugir, pensamentos de se machucar ou de machucar o bebê: acolha sem nenhum julgamento, diga que isso acontece com muita mãe e tem tratamento, oriente procurar ajuda hoje (CVV 188, gratuito e 24h; ou pronto-socorro, ou a equipe do posto de saúde) e peça que ela não fique sozinha agora. Não emende dica de rotina nessa resposta.
+- SACUDIR bebê ou criança pequena nunca é seguro, em nenhuma intensidade — diga isso com clareza, sem acusar. Se já aconteceu e a criança teve vômito, sonolência, irritabilidade ou qualquer mudança, atendimento médico IMEDIATO.
+- Suspeita de violência ou maus-tratos contra a criança: acolha quem contou, sem julgar, e oriente o Disque 100 ou o Conselho Tutelar da cidade.
+- Gestação e pós-parto imediato não são o seu tema: acolha em uma frase e encaminhe ao pré-natal, obstetra ou parteira, sem orientação clínica.
+- Não invente dados, estudos, nomes ou instituições. Não cite prêmios nem organismos internacionais.
+- Assunto alheio à primeira infância: diga com gentileza que aqui é sobre a vida com o bebê, e volte. Isso NUNCA vale para o que ela está sentindo.
+- Não peça dados pessoais; se ela contar algo sensível, não repita na resposta.
+- Sobre creche ou escola: diga o que costuma indicar um bom lugar (poucas crianças por adulto, adaptação sem pressa, ambiente seguro, pouca ou nenhuma tela), sem citar nomes de escolas.
 
-Quando fizer sentido, termine devolvendo confiança a quem cuida: quem pergunta já está cuidando.`;
+FECHAMENTO
+Quando fizer sentido, termine devolvendo confiança: ela conhece o filho dela melhor que qualquer um, e o fato de estar perguntando já mostra o cuidado que tem.`;
 
 function corsOrigem(origin: string | null): string | null {
   if (!origin) return null;
   const exatos = [
-    "https://babygpt.com.br",
-    "https://www.babygpt.com.br",
-    "https://babygpt-one.vercel.app",
-    "https://babygpt.vercel.app",
+    "https://perguntademae.com.br",
+    "https://www.perguntademae.com.br",
+    "https://perguntademae.vercel.app",
   ];
   return exatos.includes(origin) ? origin : null;
 }
@@ -69,7 +86,7 @@ function ipDoPedido(req: Request): string {
 async function contar(filtro: string): Promise<number | null> {
   try {
     const r = await fetch(
-      `${SUPABASE_URL}/rest/v1/babygpt_perguntas?select=id&${filtro}`,
+      `${SUPABASE_URL}/rest/v1/perguntademae_perguntas?select=id&${filtro}`,
       {
         method: "HEAD",
         headers: {
@@ -80,17 +97,17 @@ async function contar(filtro: string): Promise<number | null> {
       },
     );
     if (!r.ok) {
-      console.error("babygpt: contagem falhou", r.status, filtro);
+      console.error("perguntademae: contagem falhou", r.status, filtro);
       return null;
     }
     const total = parseInt((r.headers.get("content-range") ?? "").split("/")[1] ?? "", 10);
     if (!Number.isFinite(total)) {
-      console.error("babygpt: content-range ilegivel", r.headers.get("content-range"));
+      console.error("perguntademae: content-range ilegivel", r.headers.get("content-range"));
       return null;
     }
     return total;
   } catch (e) {
-    console.error("babygpt: contagem com erro de rede", String(e));
+    console.error("perguntademae: contagem com erro de rede", String(e));
     return null;
   }
 }
@@ -102,7 +119,7 @@ async function contar(filtro: string): Promise<number | null> {
  */
 async function registrar(linha: Record<string, unknown>): Promise<number | null> {
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/babygpt_perguntas?select=id`, {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/perguntademae_perguntas?select=id`, {
       method: "POST",
       headers: {
         apikey: SERVICE_KEY,
@@ -113,14 +130,14 @@ async function registrar(linha: Record<string, unknown>): Promise<number | null>
       body: JSON.stringify(linha),
     });
     if (!r.ok) {
-      console.error("babygpt: insert falhou", r.status, (await r.text()).slice(0, 300));
+      console.error("perguntademae: insert falhou", r.status, (await r.text()).slice(0, 300));
       return null;
     }
     const linhas = await r.json();
     const id = Array.isArray(linhas) ? linhas[0]?.id : null;
     return typeof id === "number" ? id : null;
   } catch (e) {
-    console.error("babygpt: insert com erro de rede", String(e));
+    console.error("perguntademae: insert com erro de rede", String(e));
     return null;
   }
 }
@@ -163,10 +180,10 @@ Deno.serve(async (req: Request) => {
   // Falha fechado: sem contagem confiável, não gasta chamada paga.
   if (porIp === null || global === null) return json({ erro: INDISPONIVEL }, 503, headers);
   if (porIp >= LIMITE_IP_HORA) {
-    return json({ erro: "Você fez várias perguntas seguidas. Respire, teste as dicas — e volte em uma horinha. 💛" }, 429, headers);
+    return json({ erro: "Você mandou várias perguntas seguidas. Respira um pouco e volta daqui a uma horinha — a gente continua. 💛" }, 429, headers);
   }
   if (global >= LIMITE_GLOBAL_DIA) {
-    return json({ erro: "O BabyGPT recebeu muitas perguntas hoje e foi descansar. Volte amanhã!" }, 429, headers);
+    return json({ erro: "Recebemos muitas perguntas hoje e chegamos no limite do dia. Volte amanhã — a gente vai estar aqui. 💛" }, 429, headers);
   }
 
   // Reserva a vaga ANTES de chamar a API: é essa linha que faz o contador andar.
@@ -200,7 +217,7 @@ Deno.serve(async (req: Request) => {
       .join("\n")
       .trim();
   } catch (e) {
-    console.error("babygpt: anthropic", String(e));
+    console.error("perguntademae: anthropic", String(e));
     return json({ erro: INDISPONIVEL }, 502, headers);
   }
   if (!texto) return json({ erro: INDISPONIVEL }, 502, headers);
@@ -213,7 +230,7 @@ Deno.serve(async (req: Request) => {
     texto += "\n\n(Ficou grande e precisei parar por aqui — se quiser, pergunte de novo focando em um ponto.)";
   }
 
-  await fetch(`${SUPABASE_URL}/rest/v1/babygpt_perguntas?id=eq.${idLinha}`, {
+  await fetch(`${SUPABASE_URL}/rest/v1/perguntademae_perguntas?id=eq.${idLinha}`, {
     method: "PATCH",
     headers: {
       apikey: SERVICE_KEY,
@@ -222,7 +239,7 @@ Deno.serve(async (req: Request) => {
       prefer: "return=minimal",
     },
     body: JSON.stringify({ resposta: texto.slice(0, 4000) }),
-  }).catch((e) => console.error("babygpt: patch da resposta", String(e)));
+  }).catch((e) => console.error("perguntademae: patch da resposta", String(e)));
 
   return json({ resposta: texto }, 200, headers);
 });
