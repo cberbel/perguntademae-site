@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BabyGPT — dicas sobre a primeira infância (0 a 3 anos)</title>
+  <meta name="description" content="Pergunte sobre sono, choro, birras, fala, alimentação e telas — o BabyGPT responde na hora. Dicas práticas sobre a primeira infância (0 a 3 anos). Uma realização da Free School." />
+  <meta property="og:title" content="BabyGPT — pergunte sobre seu bebê" />
+  <meta property="og:description" content="Dúvidas sobre bebês e crianças de 0 a 3 anos? Escreva sua pergunta e o BabyGPT responde na hora. Gratuito." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#FFF9F2" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👶</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #FFF9F2;
+      --ink: #22303C;
+      --suave: #5B6B7A;
+      --azul: #003BE3;
+      --vermelho: #FF0000;
+      --amarelo: #FFED00;
+      --cartao: #FFFFFF;
+      --borda: rgba(34, 48, 60, 0.10);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+
+    /* ===== 1ª tela: a caixinha ===== */
+    .hero {
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 28px 0 20px;
+    }
+    .logo {
+      font-family: 'Sora', sans-serif;
+      font-weight: 800;
+      font-size: 2rem;
+      letter-spacing: -0.02em;
+      text-align: center;
+    }
+    .logo .gpt { color: var(--azul); }
+    .tagline {
+      text-align: center;
+      color: var(--suave);
+      font-size: 1rem;
+      margin: 6px 0 22px;
+    }
+    .caixa {
+      background: var(--cartao);
+      border: 1.5px solid var(--borda);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(34, 48, 60, 0.08);
+      padding: 14px;
+    }
+    .caixa textarea {
+      width: 100%;
+      border: none;
+      outline: none;
+      resize: none;
+      font: inherit;
+      font-size: 1.05rem;
+      color: var(--ink);
+      background: transparent;
+      min-height: 84px;
+    }
+    .caixa textarea::placeholder { color: #9AA7B2; }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      min-height: 52px;
+      margin-top: 8px;
+      border: none;
+      border-radius: 14px;
+      background: var(--azul);
+      color: #fff;
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.1s ease, opacity 0.2s ease;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.55; cursor: wait; }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    .chip {
+      border: 1.5px solid var(--borda);
+      background: var(--cartao);
+      color: var(--suave);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .chip:active { background: #F2F6FF; }
+    .resposta {
+      display: none;
+      margin-top: 16px;
+      background: var(--cartao);
+      border-left: 4px solid var(--amarelo);
+      border-radius: 14px;
+      box-shadow: 0 6px 20px rgba(34, 48, 60, 0.07);
+      padding: 18px;
+      font-size: 1rem;
+    }
+    .resposta.visivel { display: block; }
+    .resposta p { margin-bottom: 10px; }
+    .resposta p:last-child { margin-bottom: 0; }
+    .resposta ul { margin: 0 0 10px 20px; }
+    .resposta .pensando { color: var(--suave); font-style: italic; }
+    .resposta .aviso-erro { color: #A33; }
+    .nota {
+      text-align: center;
+      color: var(--suave);
+      font-size: 0.78rem;
+      margin-top: 14px;
+    }
+    .seta {
+      text-align: center;
+      margin-top: 22px;
+      color: var(--suave);
+      font-size: 0.85rem;
+    }
+    .seta a { color: inherit; text-decoration: none; }
+    .seta .baixo { display: block; font-size: 1.3rem; animation: pula 1.6s infinite; }
+    @keyframes pula { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+
+    /* ===== dicas ===== */
+    section { padding: 44px 0; }
+    h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+    .sub { color: var(--suave); margin-bottom: 22px; }
+    .dicas { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    @media (min-width: 640px) { .dicas { grid-template-columns: 1fr 1fr; } }
+    .dica {
+      background: var(--cartao);
+      border: 1.5px solid var(--borda);
+      border-top: 6px solid var(--azul);
+      border-radius: 14px;
+      padding: 18px;
+    }
+    .dica:nth-child(3n+1) { border-top-color: var(--vermelho); }
+    .dica:nth-child(3n+2) { border-top-color: var(--amarelo); }
+    .dica:nth-child(3n+3) { border-top-color: var(--azul); }
+    .dica h3 { font-family: 'Sora', sans-serif; font-size: 1.05rem; margin-bottom: 6px; }
+    .dica p { font-size: 0.95rem; color: #3D4C5A; }
+    .dica button {
+      margin-top: 10px;
+      border: none;
+      background: none;
+      color: var(--azul);
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 0;
+      touch-action: manipulation;
+    }
+
+    /* ===== sobre ===== */
+    .sobre { background: #FDF3E3; border-radius: 20px; padding: 26px 20px; }
+    .sobre p { margin-bottom: 12px; font-size: 0.97rem; }
+    .sobre p:last-child { margin-bottom: 0; }
+    .sobre strong { font-family: 'Sora', sans-serif; }
+
+    /* ===== rodapé ===== */
+    footer {
+      padding: 36px 0 44px;
+      text-align: center;
+      color: var(--suave);
+      font-size: 0.85rem;
+    }
+    .realizacao {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink);
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+    .quadros { display: inline-flex; gap: 3px; }
+    .quadros span { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+    .q-r { background: var(--vermelho); }
+    .q-a { background: var(--amarelo); }
+    .q-b { background: var(--azul); }
+    footer .mi { margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+  <!-- 1ª tela: a pergunta -->
+  <div class="hero wrap">
+    <h1 class="logo">Baby<span class="gpt">GPT</span> 👶</h1>
+    <p class="tagline">Tire suas dúvidas sobre bebês e crianças de 0 a 3 anos</p>
+
+    <div class="caixa">
+      <label for="pergunta" class="sr-only" style="position:absolute;left:-9999px;">Sua pergunta</label>
+      <textarea id="pergunta" maxlength="500" placeholder="Ex.: Meu bebê de 1 ano acorda várias vezes à noite. O que eu faço?" enterkeyhint="send"></textarea>
+      <button class="btn" id="enviar" type="button">Perguntar</button>
+    </div>
+
+    <div class="chips" id="chips">
+      <button class="chip" type="button">Como lidar com birras?</button>
+      <button class="chip" type="button">Quando tirar a fralda?</button>
+      <button class="chip" type="button">Meu bebê não quer comer</button>
+      <button class="chip" type="button">Telas fazem mal antes dos 2?</button>
+      <button class="chip" type="button">Como estimular a fala?</button>
+    </div>
+
+    <div class="resposta" id="resposta" aria-live="polite"></div>
+
+    <p class="nota">Respostas geradas por inteligência artificial, com caráter educativo — não substituem o pediatra da sua criança.</p>
+
+    <p class="seta"><a href="#dicas">Dicas rápidas para o dia a dia<span class="baixo">↓</span></a></p>
+  </div>
+
+  <!-- Dicas -->
+  <section id="dicas" class="wrap">
+    <h2>Dicas rápidas: 0 a 3 anos</h2>
+    <p class="sub">O essencial que ajuda na maior parte dos dias. Quer ir além? Pergunte ao BabyGPT.</p>
+    <div class="dicas">
+      <article class="dica">
+        <h3>😴 Sono começa com rotina</h3>
+        <p>Bebês dormem melhor quando o fim do dia é previsível: banho, luz baixa, voz calma, sempre na mesma ordem. O corpo aprende a sequência e entende que é hora de desacelerar.</p>
+        <button type="button" data-p="Como montar uma rotina de sono para meu bebê?">Perguntar sobre sono →</button>
+      </article>
+      <article class="dica">
+        <h3>🍼 Choro é comunicação</h3>
+        <p>Bebê não chora para manipular — chora porque é a única língua que tem. Atender o choro não "estraga": ensina que o mundo responde, e é daí que nasce a segurança.</p>
+        <button type="button" data-p="Por que meu bebê chora tanto e como acolher sem me desesperar?">Perguntar sobre choro →</button>
+      </article>
+      <article class="dica">
+        <h3>🌋 Birra é cérebro em obras</h3>
+        <p>Entre 1 e 3 anos, a emoção é gigante e o autocontrole ainda não existe. Na birra: fique por perto, nomeie o sentimento ("você ficou bravo") e mantenha o limite com calma.</p>
+        <button type="button" data-p="Como lidar com as birras do meu filho de 2 anos?">Perguntar sobre birras →</button>
+      </article>
+      <article class="dica">
+        <h3>🗣️ Conversa constrói a fala</h3>
+        <p>Narre o dia, responda aos balbucios como se fossem frases, dê tempo para a criança "responder". É essa troca — e não vídeos de estímulo — que constrói a linguagem.</p>
+        <button type="button" data-p="Como estimular a fala do meu bebê no dia a dia?">Perguntar sobre fala →</button>
+      </article>
+      <article class="dica">
+        <h3>📵 Telas: quanto menos, melhor</h3>
+        <p>Antes dos 2 anos, o cérebro aprende com o mundo em três dimensões: gente, chão, objetos de verdade. A tela hipnotiza, mas não constrói — troque por colo e chão livre.</p>
+        <button type="button" data-p="Telas fazem mal para bebês? Como reduzir aqui em casa?">Perguntar sobre telas →</button>
+      </article>
+      <article class="dica">
+        <h3>🥦 Comer é aprendizado</h3>
+        <p>Criança pequena precisa reencontrar o mesmo alimento muitas vezes antes de aceitar. Coma junto, ofereça sem forçar e deixe ela pegar com a mão: bagunça faz parte.</p>
+        <button type="button" data-p="Meu filho recusa comida. Como tornar as refeições mais leves?">Perguntar sobre alimentação →</button>
+      </article>
+      <article class="dica">
+        <h3>🧗 Chão livre, corpo forte</h3>
+        <p>O chão é o melhor brinquedo que existe: rolar, engatinhar, escalar almofadas. Quanto menos tempo preso em cadeirinhas e telas, mais o corpo — e o cérebro — se desenvolvem.</p>
+        <button type="button" data-p="Como montar um espaço seguro para meu bebê se movimentar livre em casa?">Perguntar sobre movimento →</button>
+      </article>
+      <article class="dica">
+        <h3>🤲 Deixe tentar</h3>
+        <p>Comer sozinho, subir o degrau, guardar o brinquedo: leva o triplo do tempo e sai imperfeito — e é assim que se aprende. Ajude só no necessário, e celebre a tentativa.</p>
+        <button type="button" data-p="Como incentivar a autonomia de uma criança de 2 anos?">Perguntar sobre autonomia →</button>
+      </article>
+      <article class="dica">
+        <h3>📚 Livro desde o colo</h3>
+        <p>Ler para bebê vale desde sempre — pela voz, pelo colo, pelas imagens. E repetir o mesmo livro vinte vezes não é "de novo isso, não": repetição é como criança aprende.</p>
+        <button type="button" data-p="Como criar o hábito de leitura com um bebê?">Perguntar sobre leitura →</button>
+      </article>
+    </div>
+  </section>
+
+  <!-- Sobre -->
+  <section class="wrap">
+    <div class="sobre">
+      <p><strong>O que é o BabyGPT?</strong></p>
+      <p>Um assistente gratuito para quem cuida de bebês e crianças pequenas. Você pergunta em português simples — sobre sono, choro, birras, fralda, comida, telas, fala — e ele responde na hora, sem julgamento, com orientações práticas para o dia a dia.</p>
+      <p>As respostas são geradas por inteligência artificial e têm caráter educativo: podem conter imprecisões e <strong>não substituem a orientação do pediatra</strong> nem de outros profissionais que acompanham a sua criança. Em situação de emergência, procure atendimento médico imediatamente.</p>
+    </div>
+  </section>
+
+  <footer class="wrap">
+    <a class="realizacao" href="https://www.freeschool.com.br" target="_blank" rel="noopener noreferrer">
+      <span class="quadros"><span class="q-r"></span><span class="q-a"></span><span class="q-b"></span></span>
+      Uma realização Free School
+    </a>
+    <div class="mi">BabyGPT · dicas sobre a primeira infância · 0 a 3 anos</div>
+  </footer>
+
+  <script>
+    const API = 'https://rmpnqrvsmxhnrwlgqmdp.supabase.co/functions/v1/babygpt';
+    const caixa = document.getElementById('pergunta');
+    const botao = document.getElementById('enviar');
+    const areaResposta = document.getElementById('resposta');
+
+    // Markdown mínimo do bot -> HTML seguro (escapa tudo antes de formatar)
+    function render(texto) {
+      const esc = texto.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const linhas = esc.split(/\r?\n/);
+      let html = '', lista = false;
+      for (const l of linhas) {
+        const item = l.match(/^\s*(?:[-*•]|\d+\.)\s+(.*)/);
+        if (item) {
+          if (!lista) { html += '<ul>'; lista = true; }
+          html += '<li>' + item[1] + '</li>';
+        } else {
+          if (lista) { html += '</ul>'; lista = false; }
+          if (l.trim()) html += '<p>' + l + '</p>';
+        }
+      }
+      if (lista) html += '</ul>';
+      return html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    }
+
+    async function perguntar() {
+      const pergunta = caixa.value.trim();
+      if (!pergunta) { caixa.focus(); return; }
+      botao.disabled = true;
+      botao.textContent = 'Pensando…';
+      areaResposta.className = 'resposta visivel';
+      areaResposta.innerHTML = '<p class="pensando">O BabyGPT está pensando na sua pergunta…</p>';
+      areaResposta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      try {
+        const r = await fetch(API, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ pergunta })
+        });
+        const dados = await r.json();
+        if (dados.resposta) {
+          areaResposta.innerHTML = render(dados.resposta);
+        } else {
+          areaResposta.innerHTML = '<p class="aviso-erro">' + (dados.erro || 'Não consegui responder agora. Tente de novo.') + '</p>';
+        }
+      } catch (e) {
+        areaResposta.innerHTML = '<p class="aviso-erro">Sem conexão agora. Confira a internet e tente de novo.</p>';
+      }
+      botao.disabled = false;
+      botao.textContent = 'Perguntar';
+      areaResposta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    botao.addEventListener('click', perguntar);
+    caixa.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); perguntar(); }
+    });
+
+    // Chips e botões das dicas preenchem a caixa e perguntam
+    function usarSugestao(texto) {
+      caixa.value = texto;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(perguntar, 350);
+    }
+    document.querySelectorAll('.chip').forEach((c) =>
+      c.addEventListener('click', () => usarSugestao(c.textContent))
+    );
+    document.querySelectorAll('.dica button').forEach((b) =>
+      b.addEventListener('click', () => usarSugestao(b.dataset.p))
+    );
+  </script>
+</body>
+</html>
