@@ -170,6 +170,72 @@
     .seta .baixo { display: block; font-size: 1.3rem; animation: pula 1.6s infinite; }
     @keyframes pula { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 
+    /* ===== cadastro ===== */
+    .convite {
+      display: none;
+      margin-top: 12px;
+      background: #FDF3E3;
+      border: 1.5px solid rgba(34,48,60,0.10);
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 0.92rem;
+      color: #3D4C5A;
+    }
+    .convite.visivel { display: block; }
+    .convite strong { font-family: 'Sora', sans-serif; }
+    .convite .acoes { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+    .convite button {
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 12px;
+      border: none;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .convite .sim { background: var(--azul); color: #fff; }
+    .convite .depois { background: transparent; color: var(--suave); }
+    .cadastro {
+      display: none;
+      margin-top: 14px;
+      background: var(--cartao);
+      border: 1.5px solid var(--borda);
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(34,48,60,0.08);
+      padding: 18px 16px;
+    }
+    .cadastro.visivel { display: block; }
+    .cadastro h2 { font-size: 1.15rem; margin-bottom: 4px; }
+    .cadastro .ajuda { color: var(--suave); font-size: 0.88rem; margin-bottom: 14px; }
+    .cadastro label { display: block; font-size: 0.85rem; font-weight: 600; margin: 10px 0 4px; }
+    .cadastro label span { font-weight: 400; color: var(--suave); }
+    .cadastro input[type=text],
+    .cadastro input[type=tel],
+    .cadastro input[type=email],
+    .cadastro input[type=month] {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 12px;
+      font: inherit;
+      color: var(--ink);
+      background: var(--bg);
+      border: 1.5px solid var(--borda);
+      border-radius: 12px;
+    }
+    .cadastro .aceite {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin: 16px 0 4px;
+      font-size: 0.82rem;
+      color: var(--suave);
+      line-height: 1.45;
+    }
+    .cadastro .aceite input { margin-top: 3px; width: 20px; height: 20px; flex-shrink: 0; }
+    .cadastro .aceite a { color: var(--azul); }
+    .cadastro .erro-form { color: #A33; font-size: 0.88rem; margin-top: 10px; }
+
     /* ===== epígrafe ===== */
     .epigrafe {
       max-width: 560px;
@@ -289,6 +355,42 @@
     </div>
 
     <div class="resposta" id="resposta" aria-live="polite"></div>
+
+    <div class="convite" id="convite">
+      <strong>Quer guardar suas conversas?</strong> Faça um cadastro rapidinho e a gente lembra do que você já perguntou — e responde levando em conta a idade do seu bebê.
+      <div class="acoes">
+        <button class="sim" type="button" id="abrir-cadastro">Quero guardar</button>
+        <button class="depois" type="button" id="depois">Agora não</button>
+      </div>
+    </div>
+
+    <form class="cadastro" id="cadastro" novalidate>
+      <h2>Um cadastro rapidinho</h2>
+      <p class="ajuda">É para guardar suas conversas e ajustar as respostas à idade do seu bebê.</p>
+
+      <label for="c-whats">WhatsApp</label>
+      <input id="c-whats" name="whatsapp" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(21) 99999-9999" />
+
+      <label for="c-email">E-mail</label>
+      <input id="c-email" name="email" type="email" autocomplete="email" placeholder="voce@email.com" />
+
+      <label for="c-nasc-crianca">Nascimento do bebê</label>
+      <input id="c-nasc-crianca" name="nasc_crianca" type="month" />
+
+      <label for="c-nasc-mae">Seu nascimento <span>(opcional)</span></label>
+      <input id="c-nasc-mae" name="nasc_mae" type="month" />
+
+      <label for="c-cep">CEP <span>(opcional)</span></label>
+      <input id="c-cep" name="cep" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" />
+
+      <label class="aceite">
+        <input type="checkbox" id="c-aceite" />
+        <span>Concordo que o Pergunta de Mãe guarde esses dados para lembrar das minhas conversas e falar comigo. Li a <a href="/privacidade.html" target="_blank" rel="noopener">política de privacidade</a>.</span>
+      </label>
+
+      <button class="btn" type="submit" id="c-enviar">Guardar e continuar</button>
+      <p class="erro-form" id="c-erro" hidden></p>
+    </form>
 
     <div class="chips" id="chips">
       <button class="chip" type="button">Não durmo há meses</button>
@@ -414,12 +516,105 @@
       areaResposta.replaceChildren(p);
     }
 
+    // ---- identidade da mãe ----
+    // O token vem do servidor no cadastro e é a única prova de quem ela é.
+    // O contador local só decide QUANDO convidar; o portão real é do servidor.
+    const CHAVE_TOKEN = 'pdm_token';
+    const CHAVE_CONTA = 'pdm_perguntas';
+    const CHAVE_ADIADO = 'pdm_adiado';
+    const CONVIDA_A_PARTIR_DE = 2;   // convite gentil
+    const EXIGE_A_PARTIR_DE = 7;     // daqui em diante, só cadastrada continua
+
+    function token() { try { return localStorage.getItem(CHAVE_TOKEN) || ''; } catch (e) { return ''; } }
+    function feitas() { try { return parseInt(localStorage.getItem(CHAVE_CONTA) || '0', 10) || 0; } catch (e) { return 0; } }
+    function contar1() { try { localStorage.setItem(CHAVE_CONTA, String(feitas() + 1)); } catch (e) {} }
+
+    const elConvite = document.getElementById('convite');
+    const elCadastro = document.getElementById('cadastro');
+    const elErroForm = document.getElementById('c-erro');
+
+    function mostrarConvite() {
+      if (token() || elCadastro.classList.contains('visivel')) return;
+      let adiado = false;
+      try { adiado = localStorage.getItem(CHAVE_ADIADO) === '1'; } catch (e) {}
+      if (adiado || feitas() < CONVIDA_A_PARTIR_DE) return;
+      elConvite.classList.add('visivel');
+    }
+
+    function abrirCadastro(obrigatorio) {
+      elConvite.classList.remove('visivel');
+      elCadastro.classList.add('visivel');
+      if (obrigatorio) {
+        elCadastro.querySelector('.ajuda').textContent =
+          'Você já fez algumas perguntas — que bom que a gente está ajudando. Para continuar, faça um cadastro rapidinho.';
+      }
+      elCadastro.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    document.getElementById('abrir-cadastro').addEventListener('click', () => abrirCadastro(false));
+    document.getElementById('depois').addEventListener('click', () => {
+      elConvite.classList.remove('visivel');
+      try { localStorage.setItem(CHAVE_ADIADO, '1'); } catch (e) {}
+    });
+
+    elCadastro.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const botaoC = document.getElementById('c-enviar');
+      const dados = {
+        acao: 'cadastro',
+        whatsapp: document.getElementById('c-whats').value,
+        email: document.getElementById('c-email').value,
+        nasc_crianca: document.getElementById('c-nasc-crianca').value,
+        nasc_mae: document.getElementById('c-nasc-mae').value,
+        cep: document.getElementById('c-cep').value,
+        consentimento: document.getElementById('c-aceite').checked
+      };
+      elErroForm.hidden = true;
+      botaoC.disabled = true;
+      botaoC.textContent = 'Guardando…';
+      try {
+        const r = await fetch(API, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+        const resp = await r.json();
+        if (resp && resp.token) {
+          try { localStorage.setItem(CHAVE_TOKEN, resp.token); } catch (e) {}
+          elCadastro.classList.remove('visivel');
+          areaResposta.className = 'resposta visivel';
+          if (caixa.value.trim()) {
+            perguntar();           // ela já tinha escrito: manda agora, sem repetir o trabalho
+          } else {
+            areaResposta.innerHTML = '<p>Pronto! Agora suas conversas ficam guardadas. Pode perguntar. 💛</p>';
+            caixa.focus();
+          }
+        } else {
+          elErroForm.textContent = (resp && resp.erro) || 'Não consegui guardar agora. Tente de novo.';
+          elErroForm.hidden = false;
+        }
+      } catch (e) {
+        elErroForm.textContent = 'Sem conexão agora. Confira a internet e tente de novo.';
+        elErroForm.hidden = false;
+      }
+      botaoC.disabled = false;
+      botaoC.textContent = 'Guardar e continuar';
+    });
+
     let emAndamento = false;
 
     async function perguntar() {
       if (emAndamento) return; // Enter e chips também entram aqui: um pedido por vez
       const pergunta = caixa.value.trim();
       if (!pergunta) { caixa.focus(); return; }
+      // O portão: passou das perguntas livres e não se cadastrou, pede o cadastro
+      // antes de mandar (não gasta chamada e ela entende na hora o porquê).
+      if (!token() && feitas() >= EXIGE_A_PARTIR_DE) {
+        areaResposta.className = 'resposta visivel';
+        areaResposta.innerHTML = '<p>Você já fez algumas perguntas — que bom que a gente está ajudando. Para continuar, faça um cadastro rapidinho e suas conversas ficam guardadas. 💛</p>';
+        abrirCadastro(true);
+        return;
+      }
       emAndamento = true;
       // Fecha o teclado do celular: aberto, ele cobre a resposta que vai chegar.
       caixa.blur();
@@ -433,7 +628,7 @@
         const r = await fetch(API, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ pergunta })
+          body: JSON.stringify({ pergunta, token: token() })
         });
         let dados = null;
         try { dados = await r.json(); } catch (_e) { /* corpo não-JSON */ }
@@ -442,6 +637,11 @@
           areaResposta.innerHTML = render(dados.resposta) + BOTAO_COMPARTILHAR;
           const bc = document.getElementById('compartilhar');
           if (bc) bc.addEventListener('click', compartilhar);
+          contar1();
+          mostrarConvite();
+        } else if (dados && dados.precisaCadastro) {
+          erro(dados.erro);
+          abrirCadastro(true);
         } else if (dados && dados.erro) {
           erro(dados.erro);
         } else {

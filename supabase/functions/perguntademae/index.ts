@@ -20,6 +20,12 @@ const MODELO = "claude-sonnet-5";
 const MAX_TOKENS = 1000;
 const MAX_PERGUNTA = 500; // caracteres
 const LIMITE_IP_HORA = 8;
+const LIMITE_HORA_CADASTRADA = 20; // quem se cadastrou tem mais folga
+// O portão das 7 perguntas mora no NAVEGADOR (localStorage). Aqui em cima fica
+// só um freio de abuso bem folgado por IP: no Brasil muita mãe navega por rede
+// móvel com CGNAT, ou seja, várias pessoas atrás do MESMO IP — um portão baixo
+// por IP barraria mãe inocente na primeira pergunta.
+const LIVRES_POR_IP = 25;
 const LIMITE_GLOBAL_DIA = 400;
 
 const SYSTEM = `Você responde as perguntas do site Pergunta de Mãe, feito para mães (e quem mais cuida) de bebês e crianças de 0 a 3 anos. Uma realização da Free School.
@@ -55,6 +61,9 @@ LIMITES (invioláveis)
 - Assunto alheio à primeira infância: diga com gentileza que aqui é sobre a vida com o bebê, e volte. Isso NUNCA vale para o que ela está sentindo.
 - Não peça dados pessoais; se ela contar algo sensível, não repita na resposta.
 - Sobre creche ou escola: diga o que costuma indicar um bom lugar (poucas crianças por adulto, adaptação sem pressa, ambiente seguro, pouca ou nenhuma tela), sem citar nomes de escolas.
+
+CONTEXTO
+Às vezes chega um bloco CONTEXTO antes da pergunta, com a idade do bebê e o que já foi conversado. Use para ajustar a resposta (o que serve para um bebê de 4 meses não serve para um de 2 anos) e fale como quem lembra da conversa. NUNCA devolva esses dados como se estivesse conferindo um cadastro, e nunca repita o telefone, o e-mail ou o endereço dela.
 
 FECHAMENTO
 Quando fizer sentido, termine devolvendo confiança: ela conhece o filho dela melhor que qualquer um, e o fato de estar perguntando já mostra o cuidado que tem.`;
@@ -142,6 +151,111 @@ async function registrar(linha: Record<string, unknown>): Promise<number | null>
   }
 }
 
+
+/** Só dígitos, para telefone e CEP. */
+function digitos(v: unknown): string {
+  return String(v ?? "").replace(/\D/g, "");
+}
+
+function dataValida(v: unknown, anosMax: number): string | null {
+  const t = String(v ?? "").trim();
+  // aceita AAAA-MM (input type=month) e AAAA-MM-DD
+  const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(t);
+  if (!m) return null;
+  const iso = `${m[1]}-${m[2]}-${m[3] ?? "01"}`;
+  const d = new Date(iso + "T00:00:00Z");
+  if (isNaN(d.getTime())) return null;
+  const agora = Date.now();
+  if (d.getTime() > agora) return null;                       // não pode ser futuro
+  if (agora - d.getTime() > anosMax * 365.25 * 86_400_000) return null;
+  return iso;
+}
+
+/** Cadastro da mãe. Devolve o token (a identidade dela daqui pra frente) ou um erro. */
+async function cadastrar(corpo: Record<string, unknown>, ip: string): Promise<{ token?: string; erro?: string }> {
+  if (corpo.consentimento !== true) return { erro: "Para guardar suas conversas, precisamos do seu aceite." };
+  const whatsapp = digitos(corpo.whatsapp);
+  if (whatsapp.length < 10 || whatsapp.length > 13) return { erro: "Confira o WhatsApp com DDD." };
+  const email = String(corpo.email ?? "").trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email) || email.length > 120) return { erro: "Confira o e-mail." };
+  const nascCrianca = dataValida(corpo.nasc_crianca, 6);
+  if (!nascCrianca) return { erro: "Confira o mês e o ano de nascimento do bebê." };
+  const nascMae = dataValida(corpo.nasc_mae, 80);              // opcional
+  const cepBruto = digitos(corpo.cep);
+  const cep = cepBruto.length === 8 ? cepBruto : null;         // opcional
+  const bairro = String(corpo.bairro ?? "").trim().slice(0, 80) || null;
+
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/perguntademae_maes?select=token`, {
+      method: "POST",
+      headers: {
+        apikey: SERVICE_KEY,
+        authorization: `Bearer ${SERVICE_KEY}`,
+        "content-type": "application/json",
+        prefer: "return=representation",
+      },
+      body: JSON.stringify({ whatsapp, email, nasc_crianca: nascCrianca, nasc_mae: nascMae, cep, bairro, ip }),
+    });
+    if (!r.ok) {
+      console.error("perguntademae: cadastro falhou", r.status, (await r.text()).slice(0, 300));
+      return { erro: INDISPONIVEL };
+    }
+    const linhas = await r.json();
+    const token = Array.isArray(linhas) ? linhas[0]?.token : null;
+    return typeof token === "string" ? { token } : { erro: INDISPONIVEL };
+  } catch (e) {
+    console.error("perguntademae: cadastro com erro de rede", String(e));
+    return { erro: INDISPONIVEL };
+  }
+}
+
+interface Mae { id: number; nasc_crianca: string }
+
+/** Traduz o token do navegador em uma mãe de verdade. NUNCA confiar em id vindo do cliente. */
+async function buscarMae(token: unknown): Promise<Mae | null> {
+  const t = String(token ?? "");
+  if (!/^[0-9a-f-]{36}$/i.test(t)) return null;
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/perguntademae_maes?token=eq.${t}&select=id,nasc_crianca`,
+      { headers: { apikey: SERVICE_KEY, authorization: `Bearer ${SERVICE_KEY}` } },
+    );
+    if (!r.ok) return null;
+    const linhas = await r.json();
+    return Array.isArray(linhas) && linhas[0] ? linhas[0] as Mae : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Últimas trocas dessa mãe — é o que dá memória à conversa. */
+async function historico(maeId: number, limite: number): Promise<{ pergunta: string; resposta: string | null }[]> {
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/perguntademae_perguntas?mae_id=eq.${maeId}&resposta=not.is.null&select=pergunta,resposta&order=id.desc&limit=${limite}`,
+      { headers: { apikey: SERVICE_KEY, authorization: `Bearer ${SERVICE_KEY}` } },
+    );
+    if (!r.ok) return [];
+    const linhas = await r.json();
+    return Array.isArray(linhas) ? linhas.reverse() : [];
+  } catch {
+    return [];
+  }
+}
+
+function idadeEmMeses(nasc: string): number {
+  const d = new Date(nasc + "T00:00:00Z");
+  return Math.max(0, Math.floor((Date.now() - d.getTime()) / (30.44 * 86_400_000)));
+}
+
+function descreveIdade(meses: number): string {
+  if (meses < 1) return "recém-nascido";
+  if (meses < 24) return `${meses} ${meses === 1 ? "mês" : "meses"}`;
+  const anos = Math.floor(meses / 12);
+  const resto = meses % 12;
+  return resto ? `${anos} anos e ${resto} ${resto === 1 ? "mês" : "meses"}` : `${anos} anos`;
+}
+
 function json(corpo: unknown, status: number, headers: Record<string, string>): Response {
   return new Response(JSON.stringify(corpo), { status, headers });
 }
@@ -160,26 +274,59 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: cors ? 204 : 403, headers });
   if (!cors || req.method !== "POST") return json({ erro: "forbidden" }, 403, headers);
 
-  let pergunta = "";
+  let corpo: Record<string, unknown> = {};
   try {
-    const corpo = await req.json();
-    if (corpo && typeof corpo === "object" && !Array.isArray(corpo)) {
-      pergunta = String((corpo as { pergunta?: unknown }).pergunta ?? "").trim();
-    }
-  } catch { /* corpo inválido cai no vazio */ }
+    const lido = await req.json();
+    if (lido && typeof lido === "object" && !Array.isArray(lido)) corpo = lido as Record<string, unknown>;
+  } catch { /* corpo inválido fica vazio */ }
+
+  const ip = ipDoPedido(req);
+  const acao = String(corpo.acao ?? "pergunta");
+
+  // --- cadastro: devolve o token que passa a identificar essa mãe ---
+  if (acao === "cadastro") {
+    const r = await cadastrar(corpo, ip);
+    return r.token ? json({ token: r.token }, 200, headers) : json({ erro: r.erro }, 400, headers);
+  }
+
+  // --- histórico: as conversas anteriores dela ---
+  if (acao === "historico") {
+    const mae = await buscarMae(corpo.token);
+    if (!mae) return json({ conversas: [] }, 200, headers);
+    return json({ conversas: await historico(mae.id, 20) }, 200, headers);
+  }
+
+  let pergunta = String(corpo.pergunta ?? "").trim();
   if (!pergunta) return json({ erro: "Escreva uma pergunta primeiro." }, 400, headers);
   pergunta = pergunta.slice(0, MAX_PERGUNTA);
 
-  const ip = ipDoPedido(req);
+  const mae = await buscarMae(corpo.token);
   const umaHoraAtras = new Date(Date.now() - 3_600_000).toISOString();
   const umDiaAtras = new Date(Date.now() - 86_400_000).toISOString();
   const [porIp, global] = await Promise.all([
-    contar(`ip=eq.${encodeURIComponent(ip)}&criado_em=gte.${umaHoraAtras}`),
+    contar(mae
+      ? `mae_id=eq.${mae.id}&criado_em=gte.${umaHoraAtras}`
+      : `ip=eq.${encodeURIComponent(ip)}&criado_em=gte.${umaHoraAtras}`),
     contar(`criado_em=gte.${umDiaAtras}`),
   ]);
   // Falha fechado: sem contagem confiável, não gasta chamada paga.
   if (porIp === null || global === null) return json({ erro: INDISPONIVEL }, 503, headers);
-  if (porIp >= LIMITE_IP_HORA) {
+
+  // O PORTÃO: as primeiras perguntas são livres; depois delas, só quem se
+  // cadastrou continua. Vale no servidor porque limpar o navegador não burla.
+  if (!mae) {
+    const trintaDias = new Date(Date.now() - 30 * 86_400_000).toISOString();
+    const jaFeitas = await contar(`ip=eq.${encodeURIComponent(ip)}&criado_em=gte.${trintaDias}`);
+    if (jaFeitas === null) return json({ erro: INDISPONIVEL }, 503, headers);
+    if (jaFeitas >= LIVRES_POR_IP) {
+      return json({
+        precisaCadastro: true,
+        erro: "Para continuar conversando e guardar suas perguntas, faça um cadastro rapidinho. 💛",
+      }, 403, headers);
+    }
+  }
+
+  if (porIp >= (mae ? LIMITE_HORA_CADASTRADA : LIMITE_IP_HORA)) {
     return json({ erro: "Você mandou várias perguntas seguidas. Respira um pouco e volta daqui a uma horinha — a gente continua. 💛" }, 429, headers);
   }
   if (global >= LIMITE_GLOBAL_DIA) {
@@ -188,8 +335,25 @@ Deno.serve(async (req: Request) => {
 
   // Reserva a vaga ANTES de chamar a API: é essa linha que faz o contador andar.
   // Se a gravação falhar, o limite não funcionaria — então nem chamamos a Anthropic.
-  const idLinha = await registrar({ pergunta, ip, origem: req.headers.get("origin") });
+  const idLinha = await registrar({ pergunta, ip, origem: req.headers.get("origin"), mae_id: mae?.id ?? null });
   if (idLinha === null) return json({ erro: INDISPONIVEL }, 503, headers);
+
+  // Memória da conversa: quem se cadastrou traz junto a idade do bebê e as
+  // últimas trocas, para a resposta não recomeçar do zero toda vez.
+  const mensagens: { role: "user" | "assistant"; content: string }[] = [];
+  if (mae) {
+    const anteriores = await historico(mae.id, 6);
+    for (const t of anteriores) {
+      mensagens.push({ role: "user", content: t.pergunta });
+      if (t.resposta) mensagens.push({ role: "assistant", content: t.resposta });
+    }
+    const idade = descreveIdade(idadeEmMeses(mae.nasc_crianca));
+    mensagens.push({ role: "user", content: `CONTEXTO: o bebê desta mãe tem ${idade}.
+
+${pergunta}` });
+  } else {
+    mensagens.push({ role: "user", content: pergunta });
+  }
 
   let texto = "";
   let cortada = false;
@@ -205,7 +369,7 @@ Deno.serve(async (req: Request) => {
         model: MODELO,
         max_tokens: MAX_TOKENS,
         system: SYSTEM,
-        messages: [{ role: "user", content: pergunta }],
+        messages: mensagens,
       }),
     });
     if (!r.ok) throw new Error(`anthropic ${r.status}`);
