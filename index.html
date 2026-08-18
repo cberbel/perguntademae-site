@@ -374,7 +374,7 @@
     <div class="resposta" id="resposta" aria-live="polite"></div>
 
     <div class="convite" id="convite">
-      <strong>Quer guardar suas conversas?</strong> Faça um cadastro rapidinho e a gente lembra do que você já perguntou — e responde levando em conta a idade do seu bebê.
+      <span id="convite-texto"></span>
       <div class="acoes">
         <button class="sim" type="button" id="abrir-cadastro">Quero guardar</button>
         <button class="depois" type="button" id="depois">Agora não</button>
@@ -558,15 +558,40 @@
     const elCadastro = document.getElementById('cadastro');
     const elErroForm = document.getElementById('c-erro');
 
+    // Com o WhatsApp no ar, o número DELA já é a identidade: não faz sentido
+    // pedir formulário. Sem número (hoje), o cadastro do site é o caminho.
+    const TEM_WHATS = !!WHATS;
+
+    function textoConvite() {
+      return TEM_WHATS
+        ? '<strong>Quer continuar essa conversa no WhatsApp?</strong> Lá a gente lembra do que você já perguntou e você fala quando der — de madrugada, na fila, no colo.'
+        : '<strong>Quer guardar suas conversas?</strong> Faça um cadastro rapidinho e a gente lembra do que você já perguntou — e responde levando em conta a idade do seu bebê.';
+    }
+
     function mostrarConvite() {
       if (token() || elCadastro.classList.contains('visivel')) return;
       let adiado = false;
       try { adiado = localStorage.getItem(CHAVE_ADIADO) === '1'; } catch (e) {}
       if (adiado || feitas() < CONVIDA_A_PARTIR_DE) return;
+      document.getElementById('convite-texto').innerHTML = textoConvite();
+      document.getElementById('abrir-cadastro').textContent = TEM_WHATS ? 'Continuar no WhatsApp' : 'Quero guardar';
       elConvite.classList.add('visivel');
     }
 
     function abrirCadastro(obrigatorio) {
+      // Caminho novo: o WhatsApp substitui o cadastro. O telefone dela já é a
+      // identidade, e o bebê a gente pergunta conversando, não em formulário.
+      if (TEM_WHATS) {
+        elConvite.classList.remove('visivel');
+        areaResposta.className = 'resposta visivel';
+        areaResposta.innerHTML =
+          (obrigatorio
+            ? '<p>Você já perguntou bastante por aqui — que bom que está ajudando. Daqui pra frente a conversa continua no WhatsApp, e lá a gente lembra de tudo. 💛</p>'
+            : '<p>A conversa fica melhor no WhatsApp: a gente lembra do que você já perguntou. 💛</p>')
+          + botaoWhats(caixa.value.trim());
+        areaResposta.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
       elConvite.classList.remove('visivel');
       elCadastro.classList.add('visivel');
       if (obrigatorio) {
