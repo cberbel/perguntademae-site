@@ -170,6 +170,32 @@
     .seta .baixo { display: block; font-size: 1.3rem; animation: pula 1.6s infinite; }
     @keyframes pula { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 
+    /* ===== epígrafe ===== */
+    .epigrafe {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 26px 0 6px;
+      text-align: center;
+    }
+    .epigrafe blockquote {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.05rem;
+      line-height: 1.5;
+      color: var(--ink);
+      border-left: 4px solid var(--amarelo);
+      padding-left: 16px;
+      text-align: left;
+    }
+    .epigrafe cite {
+      display: block;
+      margin-top: 10px;
+      padding-left: 20px;
+      font-style: normal;
+      font-size: 0.85rem;
+      color: var(--suave);
+      text-align: left;
+    }
+
     /* ===== dicas ===== */
     section { padding: 44px 0; }
     h2 {
@@ -265,65 +291,76 @@
     <div class="resposta" id="resposta" aria-live="polite"></div>
 
     <div class="chips" id="chips">
-      <button class="chip" type="button">Não durmo há semanas</button>
-      <button class="chip" type="button">Ele chora e eu não sei o que fazer</button>
-      <button class="chip" type="button">Será que estou fazendo certo?</button>
+      <button class="chip" type="button">Não durmo há meses</button>
+      <button class="chip" type="button">Só dorme no meu colo</button>
+      <button class="chip" type="button">Perdi a paciência hoje</button>
     </div>
 
     <p class="nota">Respostas geradas por inteligência artificial, com caráter educativo — não substituem o pediatra. Em emergência, procure atendimento médico imediatamente.</p>
 
-    <p class="seta"><a href="#dicas">Para os dias difíceis<span class="baixo">↓</span></a></p>
+    <p class="seta"><a href="#dicas">Você não está sozinha nisso<span class="baixo">↓</span></a></p>
   </div>
 
-  <!-- Para os dias difíceis -->
+  <!-- Por que este site fala com a mãe -->
+  <section class="wrap epigrafe">
+    <blockquote>“Não existe isso que se chama um bebê: sempre que encontramos um bebê, encontramos o cuidado materno — e sem o cuidado materno não haveria bebê.”</blockquote>
+    <cite>D. W. Winnicott, pediatra e psicanalista</cite>
+  </section>
+
+  <!-- As dores, nomeadas -->
   <section id="dicas" class="wrap">
-    <h2>Para os dias difíceis</h2>
-    <p class="sub">Coisas que costumam acalmar — e o que você já está fazendo certo sem perceber.</p>
+    <h2>Você não está sozinha nisso</h2>
+    <p class="sub">As coisas que ninguém combina antes — e o que costuma aliviar. Toque em qualquer uma para perguntar.</p>
     <div class="dicas">
       <article class="dica">
-        <h3>😴 Noite picada não é culpa sua</h3>
-        <p>Acordar várias vezes é o normal do primeiro ano, não sinal de que algo deu errado. O que costuma ajudar é o fim de dia previsível — banho, luz baixa, voz calma. E, nos dias em que nada funciona, dormir quando dá também é cuidar.</p>
-        <button type="button" data-p="Meu bebê acorda várias vezes por noite e eu estou exausta. O que posso fazer?">Perguntar sobre sono →</button>
+        <h3>😴 “Não durmo há meses”</h3>
+        <p>Acordar várias vezes por noite é o normal do primeiro ano, não sinal de que algo deu errado com você ou com ele. Não existe bebê quebrado nem mãe incompetente aqui — existe uma fase, e ela passa.</p>
+        <button type="button" data-p="Meu bebê acorda várias vezes por noite e eu estou exausta. É normal? O que posso fazer?">Perguntar sobre isso →</button>
       </article>
       <article class="dica">
-        <h3>🍼 Atender o choro não estraga nada</h3>
-        <p>Bebê não chora para manipular: é a única língua que ele tem. Você não vai "acostumar mal" por pegar no colo — é o contrário. Cada vez que você responde, ele aprende que o mundo é um lugar seguro.</p>
-        <button type="button" data-p="Meu bebê chora muito e eu fico sem saber o que fazer. Como lidar?">Perguntar sobre choro →</button>
+        <h3>🤱 “Só dorme no meu colo”</h3>
+        <p>Bebê que dorme melhor no colo não está mal-acostumado: está fazendo o que a natureza mandou. Você não criou esse hábito por fraqueza, e cedê-lo aos poucos é possível — no tempo de vocês dois.</p>
+        <button type="button" data-p="Meu bebê só dorme no meu colo. Como fazer para ele dormir no berço sem sofrimento?">Perguntar sobre isso →</button>
       </article>
       <article class="dica">
-        <h3>🌋 Birra não é falta de limite seu</h3>
-        <p>Entre 1 e 3 anos a emoção é enorme e o freio ainda não existe — nem a melhor mãe do mundo evita birra. Ficar por perto e dar nome ao que ele sente já é quase tudo. O resto passa com a idade.</p>
-        <button type="button" data-p="Como lidar com as birras do meu filho sem perder a paciência?">Perguntar sobre birra →</button>
+        <h3>😭 “Chora e eu não sei o que ele quer”</h3>
+        <p>Nem sempre dá para decifrar — e não saber não faz de você uma mãe ruim. Estar perto e tentar já é a resposta certa. Atender o choro nunca estraga: ensina que o mundo responde.</p>
+        <button type="button" data-p="Meu bebê chora e eu não consigo descobrir o motivo. Como lidar com isso?">Perguntar sobre isso →</button>
       </article>
       <article class="dica">
-        <h3>🗣️ Você já faz o que mais importa</h3>
-        <p>Falar com o bebê, esperar ele responder do jeito dele e responder de volta: é essa ida e volta que constrói a fala. Não precisa de aplicativo, vídeo nem brinquedo caro. Precisa de você conversando durante o dia comum.</p>
-        <button type="button" data-p="Como ajudar meu filho a começar a falar?">Perguntar sobre fala →</button>
+        <h3>🌋 “No mercado, ele se joga no chão”</h3>
+        <p>Entre 1 e 3 anos a emoção é enorme e o freio ainda não existe — nem a melhor mãe do mundo evita birra, e as pessoas que olham já esqueceram disso. Ficar por perto e dar nome ao que ele sente já é quase tudo.</p>
+        <button type="button" data-p="Meu filho faz birra em lugar público e eu fico sem saber o que fazer. Como agir?">Perguntar sobre isso →</button>
       </article>
       <article class="dica">
-        <h3>🧗 O chão vale mais que qualquer brinquedo</h3>
-        <p>Um espaço seguro no chão, com liberdade para rolar, engatinhar e escalar, faz mais pelo corpo e pelo cérebro do que qualquer aparato. Menos tempo preso em cadeirinha, mais chão — é simples assim.</p>
-        <button type="button" data-p="Como preparar um espaço seguro para meu bebê ficar livre no chão?">Perguntar sobre movimento →</button>
+        <h3>🥦 “Ele não come nada”</h3>
+        <p>Criança pequena precisa reencontrar o mesmo alimento muitas vezes até aceitar, e isso não tem nada a ver com o seu esforço na cozinha. Recusar comida não é recusar você.</p>
+        <button type="button" data-p="Meu filho recusa quase tudo o que ofereço. Como tornar as refeições mais leves?">Perguntar sobre isso →</button>
       </article>
       <article class="dica">
-        <h3>📵 Um desenho não põe tudo a perder</h3>
-        <p>Quanto menos tela nos primeiros anos, melhor — isso é verdade. Mas se num dia impossível você precisou de vinte minutos de desenho para tomar um banho, isso não desfaz o resto. Volta amanhã, sem culpa.</p>
-        <button type="button" data-p="Telas fazem mal para bebês? Como reduzir sem virar uma guerra em casa?">Perguntar sobre telas →</button>
+        <h3>📵 “Já dei tela demais hoje”</h3>
+        <p>Quanto menos tela nos primeiros anos, melhor — isso é verdade. Mas se num dia impossível você precisou de vinte minutos de desenho para tomar banho, isso não desfaz tudo o que você faz. Amanhã é outro dia.</p>
+        <button type="button" data-p="Acho que meu filho está vendo tela demais e me sinto culpada. Como reduzir sem virar guerra?">Perguntar sobre isso →</button>
       </article>
       <article class="dica">
-        <h3>🥦 Recusar comida não é rejeição a você</h3>
-        <p>Criança pequena precisa reencontrar o mesmo alimento muitas vezes até aceitar — e isso não tem nada a ver com o seu esforço. Coma junto, ofereça sem insistir e deixe ela pegar com a mão, sentada e com você por perto.</p>
-        <button type="button" data-p="Meu filho recusa comida. Como deixar as refeições mais leves?">Perguntar sobre comida →</button>
+        <h3>🗣️ “Ele ainda não fala e o filho da minha amiga já fala”</h3>
+        <p>Comparação é a maior ladra de sossego da maternidade. Cada criança tem seu ritmo, e o que mais ajuda a fala é o que você provavelmente já faz: conversar durante o dia comum e esperar a resposta dele.</p>
+        <button type="button" data-p="Meu filho ainda não fala e outras crianças da idade dele já falam. Devo me preocupar?">Perguntar sobre isso →</button>
       </article>
       <article class="dica">
-        <h3>🤲 Deixar tentar é mais devagar — e tudo bem</h3>
-        <p>Comer sozinho, calçar o sapato, subir o degrau: leva o triplo do tempo e sai torto. É exatamente assim que se aprende. Nos dias corridos, faça por ele sem peso na consciência; nos dias calmos, deixe tentar.</p>
-        <button type="button" data-p="Como incentivar a autonomia do meu filho pequeno no dia a dia?">Perguntar sobre autonomia →</button>
+        <h3>🙄 “Todo mundo tem um palpite”</h3>
+        <p>Sogra, vizinha, comentário na internet — todo mundo sabe o que você deveria fazer. A pessoa que mais conhece esse bebê é você. Ouvir tudo e escolher o que faz sentido para a sua casa não é teimosia: é maternar.</p>
+        <button type="button" data-p="Recebo palpite de todo mundo sobre como criar meu filho e fico insegura. Como lidar?">Perguntar sobre isso →</button>
       </article>
       <article class="dica">
-        <h3>💛 Você também precisa de colo</h3>
-        <p>Cansaço, choro sem motivo, vontade de sumir por uma hora: isso acontece com muita mãe e não faz de você uma mãe pior. Aceitar ajuda não é fraqueza. E se o peso não passa, procurar apoio é cuidar do seu bebê também.</p>
-        <button type="button" data-p="Estou exausta e me sentindo culpada o tempo todo. O que faço?">Perguntar sobre isso →</button>
+        <h3>😔 “Perdi a paciência e gritei”</h3>
+        <p>Acontece com praticamente toda mãe, e não apaga o vínculo que vocês têm. O que a criança aprende não é que você é perfeita — é que dá para voltar, se reconectar e seguir. Isso também é ensinar.</p>
+        <button type="button" data-p="Perdi a paciência com meu filho e gritei. Estou me sentindo péssima. O que faço?">Perguntar sobre isso →</button>
+      </article>
+      <article class="dica">
+        <h3>💛 “Não sou mais eu”</h3>
+        <p>Cansaço que não passa, choro sem motivo, vontade de sumir por uma hora: isso acontece com muita mãe e não faz de você uma mãe pior. Aceitar ajuda não é fraqueza — e se o peso não passa, procurar apoio é cuidar do seu bebê também.</p>
+        <button type="button" data-p="Estou exausta, me sinto sozinha e culpada o tempo todo. O que eu faço?">Perguntar sobre isso →</button>
       </article>
     </div>
   </section>
@@ -338,7 +375,6 @@
   </section>
 
   <footer class="wrap">
-    <p><a class="link-sobre" href="/sobre.html">Sobre nós</a></p>
     <a class="realizacao" href="https://www.freeschool.com.br?utm_source=perguntademae&amp;utm_medium=referral" target="_blank" rel="noopener">
       <span class="quadros"><span class="q-r"></span><span class="q-a"></span><span class="q-b"></span></span>
       Uma realização da Free School
