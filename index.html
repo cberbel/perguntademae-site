@@ -4,10 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BabyGPT — dicas sobre a primeira infância (0 a 3 anos)</title>
-  <meta name="description" content="Pergunte sobre sono, choro, birras, fala, alimentação e telas — o BabyGPT responde na hora. Dicas práticas sobre a primeira infância (0 a 3 anos). Uma realização da Free School." />
+  <meta name="description" content="Dúvidas sobre seu bebê? Pergunte sobre sono, choro, birras, fala, comida e telas — o BabyGPT responde na hora. Primeira infância, 0 a 3 anos." />
   <meta property="og:title" content="BabyGPT — pergunte sobre seu bebê" />
   <meta property="og:description" content="Dúvidas sobre bebês e crianças de 0 a 3 anos? Escreva sua pergunta e o BabyGPT responde na hora. Gratuito." />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://babygpt-one.vercel.app/" />
+  <meta property="og:locale" content="pt_BR" />
+  <link rel="canonical" href="https://babygpt-one.vercel.app/" />
   <meta name="theme-color" content="#FFF9F2" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👶</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -75,7 +78,7 @@
       background: transparent;
       min-height: 84px;
     }
-    .caixa textarea::placeholder { color: #9AA7B2; }
+    .caixa textarea::placeholder { color: #6E7E8C; }
     .btn {
       display: flex;
       align-items: center;
@@ -105,19 +108,24 @@
       margin-top: 16px;
     }
     .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px; /* alvo de toque mínimo no celular */
       border: 1.5px solid var(--borda);
       background: var(--cartao);
       color: var(--suave);
       border-radius: 999px;
-      padding: 8px 14px;
+      padding: 0 16px;
       font-size: 0.88rem;
       cursor: pointer;
       touch-action: manipulation;
     }
     .chip:active { background: #F2F6FF; }
+    /* Fica sempre no DOM (aria-live precisa estar registrado antes do conteúdo);
+       só ganha caixa e sombra quando tem resposta. */
     .resposta {
       display: none;
-      margin-top: 16px;
+      margin-top: 14px;
       background: var(--cartao);
       border-left: 4px solid var(--amarelo);
       border-radius: 14px;
@@ -131,15 +139,30 @@
     .resposta ul { margin: 0 0 10px 20px; }
     .resposta .pensando { color: var(--suave); font-style: italic; }
     .resposta .aviso-erro { color: #A33; }
+    .compartilhar {
+      display: block;
+      width: 100%;
+      min-height: 44px;
+      margin-top: 14px;
+      border: 1.5px solid var(--borda);
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--azul);
+      font: inherit;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
     .nota {
       text-align: center;
       color: var(--suave);
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       margin-top: 14px;
     }
     .seta {
       text-align: center;
-      margin-top: 22px;
+      margin-top: 16px;
       color: var(--suave);
       font-size: 0.85rem;
     }
@@ -171,7 +194,8 @@
     .dica h3 { font-family: 'Sora', sans-serif; font-size: 1.05rem; margin-bottom: 6px; }
     .dica p { font-size: 0.95rem; color: #3D4C5A; }
     .dica button {
-      margin-top: 10px;
+      display: block;
+      margin-top: 6px;
       border: none;
       background: none;
       color: var(--azul);
@@ -179,7 +203,9 @@
       font-size: 0.88rem;
       font-weight: 600;
       cursor: pointer;
-      padding: 4px 0;
+      padding: 12px 0;
+      min-height: 44px;
+      text-align: left;
       touch-action: manipulation;
     }
 
@@ -195,6 +221,14 @@
       text-align: center;
       color: var(--suave);
       font-size: 0.85rem;
+    }
+    .link-sobre {
+      display: inline-block;
+      min-height: 44px;
+      line-height: 44px;
+      color: var(--azul);
+      font-weight: 600;
+      text-decoration: none;
     }
     .realizacao {
       display: inline-flex;
@@ -228,17 +262,15 @@
       <button class="btn" id="enviar" type="button">Perguntar</button>
     </div>
 
+    <div class="resposta" id="resposta" aria-live="polite"></div>
+
     <div class="chips" id="chips">
       <button class="chip" type="button">Como lidar com birras?</button>
       <button class="chip" type="button">Quando tirar a fralda?</button>
       <button class="chip" type="button">Meu bebê não quer comer</button>
-      <button class="chip" type="button">Telas fazem mal antes dos 2?</button>
-      <button class="chip" type="button">Como estimular a fala?</button>
     </div>
 
-    <div class="resposta" id="resposta" aria-live="polite"></div>
-
-    <p class="nota">Respostas geradas por inteligência artificial, com caráter educativo — não substituem o pediatra da sua criança.</p>
+    <p class="nota">Respostas geradas por inteligência artificial, com caráter educativo — não substituem o pediatra. Em emergência, procure atendimento médico imediatamente.</p>
 
     <p class="seta"><a href="#dicas">Dicas rápidas para o dia a dia<span class="baixo">↓</span></a></p>
   </div>
@@ -275,7 +307,7 @@
       </article>
       <article class="dica">
         <h3>🥦 Comer é aprendizado</h3>
-        <p>Criança pequena precisa reencontrar o mesmo alimento muitas vezes antes de aceitar. Coma junto, ofereça sem forçar e deixe ela pegar com a mão: bagunça faz parte.</p>
+        <p>Criança pequena precisa reencontrar o mesmo alimento muitas vezes antes de aceitar. Coma junto, ofereça sem forçar e deixe ela pegar com a mão — sempre sentada e com um adulto por perto. Bagunça faz parte.</p>
         <button type="button" data-p="Meu filho recusa comida. Como tornar as refeições mais leves?">Perguntar sobre alimentação →</button>
       </article>
       <article class="dica">
@@ -306,9 +338,10 @@
   </section>
 
   <footer class="wrap">
-    <a class="realizacao" href="https://www.freeschool.com.br" target="_blank" rel="noopener noreferrer">
+    <p><a class="link-sobre" href="/sobre.html">Sobre nós</a></p>
+    <a class="realizacao" href="https://www.freeschool.com.br?utm_source=babygpt&amp;utm_medium=referral" target="_blank" rel="noopener">
       <span class="quadros"><span class="q-r"></span><span class="q-a"></span><span class="q-b"></span></span>
-      Uma realização Free School
+      Uma realização da Free School
     </a>
     <div class="mi">BabyGPT · dicas sobre a primeira infância · 0 a 3 anos</div>
   </footer>
@@ -338,32 +371,67 @@
       return html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     }
 
+    function erro(mensagem) {
+      const p = document.createElement('p');
+      p.className = 'aviso-erro';
+      p.textContent = mensagem; // textContent: mensagem de servidor nunca vira HTML
+      areaResposta.replaceChildren(p);
+    }
+
+    let emAndamento = false;
+
     async function perguntar() {
+      if (emAndamento) return; // Enter e chips também entram aqui: um pedido por vez
       const pergunta = caixa.value.trim();
       if (!pergunta) { caixa.focus(); return; }
+      emAndamento = true;
+      // Fecha o teclado do celular: aberto, ele cobre a resposta que vai chegar.
+      caixa.blur();
       botao.disabled = true;
       botao.textContent = 'Pensando…';
       areaResposta.className = 'resposta visivel';
       areaResposta.innerHTML = '<p class="pensando">O BabyGPT está pensando na sua pergunta…</p>';
-      areaResposta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      areaResposta.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      ultimaResposta = '';
       try {
         const r = await fetch(API, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ pergunta })
         });
-        const dados = await r.json();
-        if (dados.resposta) {
-          areaResposta.innerHTML = render(dados.resposta);
+        let dados = null;
+        try { dados = await r.json(); } catch (_e) { /* corpo não-JSON */ }
+        if (dados && dados.resposta) {
+          ultimaResposta = dados.resposta;
+          areaResposta.innerHTML = render(dados.resposta) + BOTAO_COMPARTILHAR;
+          const bc = document.getElementById('compartilhar');
+          if (bc) bc.addEventListener('click', compartilhar);
+        } else if (dados && dados.erro) {
+          erro(dados.erro);
         } else {
-          areaResposta.innerHTML = '<p class="aviso-erro">' + (dados.erro || 'Não consegui responder agora. Tente de novo.') + '</p>';
+          erro('Deu um problema aqui do nosso lado. Tente de novo em instantes.');
         }
       } catch (e) {
-        areaResposta.innerHTML = '<p class="aviso-erro">Sem conexão agora. Confira a internet e tente de novo.</p>';
+        erro('Sem conexão agora. Confira a internet e tente de novo.');
       }
       botao.disabled = false;
       botao.textContent = 'Perguntar';
-      areaResposta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      emAndamento = false;
+      areaResposta.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Compartilhar: o caminho natural de quem gosta da resposta é mandar no
+    // grupo da família. navigator.share no celular, cópia no desktop.
+    const BOTAO_COMPARTILHAR = '<button class="compartilhar" id="compartilhar" type="button">Compartilhar resposta</button>';
+    let ultimaResposta = '';
+    async function compartilhar() {
+      const texto = ultimaResposta + '\n\n— BabyGPT, dicas sobre a primeira infância\n' + location.origin;
+      try {
+        if (navigator.share) { await navigator.share({ text: texto }); return; }
+        await navigator.clipboard.writeText(texto);
+        const b = document.getElementById('compartilhar');
+        if (b) { b.textContent = 'Copiado!'; setTimeout(() => { b.textContent = 'Compartilhar resposta'; }, 2000); }
+      } catch (_e) { /* usuário cancelou */ }
     }
 
     botao.addEventListener('click', perguntar);
@@ -371,11 +439,13 @@
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); perguntar(); }
     });
 
-    // Chips e botões das dicas preenchem a caixa e perguntam
+    // Chips e botões das dicas preenchem a caixa e perguntam.
+    // Scroll instantâneo (não 'smooth'): com animação, o scroll da resposta
+    // cancelava o primeiro e a página parava no meio do caminho.
     function usarSugestao(texto) {
       caixa.value = texto;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(perguntar, 350);
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      perguntar();
     }
     document.querySelectorAll('.chip').forEach((c) =>
       c.addEventListener('click', () => usarSugestao(c.textContent))
