@@ -172,7 +172,7 @@ function dataValida(v: unknown, anosMax: number): string | null {
 }
 
 /** Cadastro da mãe. Devolve o token (a identidade dela daqui pra frente) ou um erro. */
-async function cadastrar(corpo: Record<string, unknown>, ip: string): Promise<{ token?: string; erro?: string }> {
+async function cadastrar(corpo: Record<string, unknown>, ip: string): Promise<{ token?: string; protocolo?: string; erro?: string }> {
   if (corpo.consentimento !== true) return { erro: "Para guardar suas conversas, precisamos do seu aceite." };
   const whatsapp = digitos(corpo.whatsapp);
   if (whatsapp.length < 10 || whatsapp.length > 13) return { erro: "Confira o WhatsApp com DDD." };
@@ -186,7 +186,7 @@ async function cadastrar(corpo: Record<string, unknown>, ip: string): Promise<{ 
   const bairro = String(corpo.bairro ?? "").trim().slice(0, 80) || null;
 
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/perguntademae_maes?select=token`, {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/perguntademae_maes?select=token,protocolo`, {
       method: "POST",
       headers: {
         apikey: SERVICE_KEY,
@@ -202,14 +202,15 @@ async function cadastrar(corpo: Record<string, unknown>, ip: string): Promise<{ 
     }
     const linhas = await r.json();
     const token = Array.isArray(linhas) ? linhas[0]?.token : null;
-    return typeof token === "string" ? { token } : { erro: INDISPONIVEL };
+    const protocolo = Array.isArray(linhas) ? linhas[0]?.protocolo : null;
+    return typeof token === "string" ? { token, protocolo } : { erro: INDISPONIVEL };
   } catch (e) {
     console.error("perguntademae: cadastro com erro de rede", String(e));
     return { erro: INDISPONIVEL };
   }
 }
 
-interface Mae { id: number; nasc_crianca: string }
+interface Mae { id: number; nasc_crianca: string; protocolo: string }
 
 /** Traduz o token do navegador em uma mãe de verdade. NUNCA confiar em id vindo do cliente. */
 async function buscarMae(token: unknown): Promise<Mae | null> {
@@ -217,7 +218,7 @@ async function buscarMae(token: unknown): Promise<Mae | null> {
   if (!/^[0-9a-f-]{36}$/i.test(t)) return null;
   try {
     const r = await fetch(
-      `${SUPABASE_URL}/rest/v1/perguntademae_maes?token=eq.${t}&select=id,nasc_crianca`,
+      `${SUPABASE_URL}/rest/v1/perguntademae_maes?token=eq.${t}&select=id,nasc_crianca,protocolo`,
       { headers: { apikey: SERVICE_KEY, authorization: `Bearer ${SERVICE_KEY}` } },
     );
     if (!r.ok) return null;
@@ -286,14 +287,14 @@ Deno.serve(async (req: Request) => {
   // --- cadastro: devolve o token que passa a identificar essa mãe ---
   if (acao === "cadastro") {
     const r = await cadastrar(corpo, ip);
-    return r.token ? json({ token: r.token }, 200, headers) : json({ erro: r.erro }, 400, headers);
+    return r.token ? json({ token: r.token, protocolo: r.protocolo }, 200, headers) : json({ erro: r.erro }, 400, headers);
   }
 
   // --- histórico: as conversas anteriores dela ---
   if (acao === "historico") {
     const mae = await buscarMae(corpo.token);
     if (!mae) return json({ conversas: [] }, 200, headers);
-    return json({ conversas: await historico(mae.id, 20) }, 200, headers);
+    return json({ conversas: await historico(mae.id, 20), protocolo: mae.protocolo }, 200, headers);
   }
 
   let pergunta = String(corpo.pergunta ?? "").trim();

@@ -139,6 +139,23 @@
     .resposta ul { margin: 0 0 10px 20px; }
     .resposta .pensando { color: var(--suave); font-style: italic; }
     .resposta .aviso-erro { color: #A33; }
+    .whats {
+      display: block;
+      width: 100%;
+      min-height: 48px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 12px;
+      background: #25D366;
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      font-size: .95rem;
+      text-align: center;
+      line-height: 48px;
+      text-decoration: none;
+      touch-action: manipulation;
+    }
     .compartilhar {
       display: block;
       width: 100%;
@@ -486,6 +503,13 @@
 
   <script>
     const API = 'https://rmpnqrvsmxhnrwlgqmdp.supabase.co/functions/v1/perguntademae';
+
+    // ---- WhatsApp do Pergunta de Mãe ----
+    // TROCAR AQUI quando o número existir (só dígitos, com 55 e DDD).
+    // Enquanto estiver vazio o botão não aparece — melhor nada do que um
+    // botão que leva a lugar nenhum. NÃO usar o número da escola: quem chega
+    // aqui veio por acolhimento, não por matrícula.
+    const WHATS = '';
     const caixa = document.getElementById('pergunta');
     const botao = document.getElementById('enviar');
     const areaResposta = document.getElementById('resposta');
@@ -520,6 +544,7 @@
     // O token vem do servidor no cadastro e é a única prova de quem ela é.
     // O contador local só decide QUANDO convidar; o portão real é do servidor.
     const CHAVE_TOKEN = 'pdm_token';
+    const CHAVE_PROTO = 'pdm_protocolo';
     const CHAVE_CONTA = 'pdm_perguntas';
     const CHAVE_ADIADO = 'pdm_adiado';
     const CONVIDA_A_PARTIR_DE = 2;   // convite gentil
@@ -580,7 +605,10 @@
         });
         const resp = await r.json();
         if (resp && resp.token) {
-          try { localStorage.setItem(CHAVE_TOKEN, resp.token); } catch (e) {}
+          try {
+            localStorage.setItem(CHAVE_TOKEN, resp.token);
+            if (resp.protocolo) localStorage.setItem(CHAVE_PROTO, resp.protocolo);
+          } catch (e) {}
           elCadastro.classList.remove('visivel');
           areaResposta.className = 'resposta visivel';
           if (caixa.value.trim()) {
@@ -634,7 +662,7 @@
         try { dados = await r.json(); } catch (_e) { /* corpo não-JSON */ }
         if (dados && dados.resposta) {
           ultimaResposta = dados.resposta;
-          areaResposta.innerHTML = render(dados.resposta) + BOTAO_COMPARTILHAR;
+          areaResposta.innerHTML = render(dados.resposta) + botaoWhats(pergunta) + BOTAO_COMPARTILHAR;
           const bc = document.getElementById('compartilhar');
           if (bc) bc.addEventListener('click', compartilhar);
           contar1();
@@ -659,6 +687,23 @@
     // Compartilhar: o caminho natural de quem gosta da resposta é mandar no
     // grupo da família. navigator.share no celular, cópia no desktop.
     const BOTAO_COMPARTILHAR = '<button class="compartilhar" id="compartilhar" type="button">Compartilhar resposta</button>';
+
+    // Continuar no WhatsApp: leva o protocolo dela e a própria pergunta, para
+    // quem receber do outro lado já saber quem é e do que se trata.
+    function botaoWhats(pergunta) {
+      if (!WHATS) return '';
+      let proto = '';
+      try { proto = localStorage.getItem(CHAVE_PROTO) || ''; } catch (e) {}
+      const texto = 'Oi! Vim do site Pergunta de Mãe e queria continuar essa conversa.'
+        + (pergunta ? '
+
+Minha dúvida: ' + pergunta : '')
+        + (proto ? '
+
+Protocolo: ' + proto : '');
+      return '<a class="whats" target="_blank" rel="noopener" href="https://wa.me/' + WHATS
+        + '?text=' + encodeURIComponent(texto) + '">Continuar no WhatsApp</a>';
+    }
     let ultimaResposta = '';
     async function compartilhar() {
       const texto = ultimaResposta + '\n\n— Pergunta de Mãe\n' + location.origin;
